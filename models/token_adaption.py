@@ -56,15 +56,16 @@ class TokenAggregation(nn.Module):
 class TokenAdaptionModule(nn.Module):
     """
     Module tổng hợp: Token Sparsification + Aggregation
+    Trả về exactly agent_num tokens
     """
-    def __init__(self, embed_dim=512, num_patches=196, sparse_ratio=0.5, aggr_ratio=0.4, dim_ratio=0.2):
+    def __init__(self, embed_dim=512, num_patches=196, agent_num=4, sparse_ratio=0.5, dim_ratio=0.2):
         super().__init__()
         self.sparse = TokenSparse(embed_dim=embed_dim, sparse_ratio=sparse_ratio)
-        keeped_patches = int(num_patches * aggr_ratio * sparse_ratio)
-        self.aggregation = TokenAggregation(dim=embed_dim, keeped_patches=keeped_patches, dim_ratio=dim_ratio)
+        # Aggregation nhằm gộp tokens thành agent_num tokens
+        self.aggregation = TokenAggregation(dim=embed_dim, keeped_patches=agent_num, dim_ratio=dim_ratio)
 
     def forward(self, tokens, attention_x, attention_y):
         select_tokens, extra_token, score_mask = self.sparse(tokens, attention_x, attention_y)
         all_tokens = torch.cat([select_tokens, extra_token], dim=1)
-        super_tokens = self.aggregation(all_tokens)
-        return super_tokens, score_mask
+        agent_tokens = self.aggregation(all_tokens)  # (B, agent_num, C)
+        return agent_tokens, score_mask

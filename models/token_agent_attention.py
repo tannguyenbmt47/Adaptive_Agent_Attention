@@ -43,8 +43,8 @@ class TokenAgentAttention(nn.Module):
         self.token_adaption = TokenAdaptionModule(
             embed_dim=dim,
             num_patches=window*window,
+            agent_num=agent_num,
             sparse_ratio=sparse_ratio,
-            aggr_ratio=aggr_ratio,
             dim_ratio=dim_ratio
         )
 
