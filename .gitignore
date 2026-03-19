@@ -82,5 +82,3 @@ logs/
 *.temp
 ~*
 
-# Ignore requirements if generated
-requirements.txt
